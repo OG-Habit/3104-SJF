@@ -9,7 +9,7 @@ int main() {
 
     numOfProcesses = getNumOfProcesses("Enter the number of processes: ");
 
-    arrProcess = (Process*)calloc(numOfProcesses, sizeof(struct process));
+    arrProcess = (Process*)calloc(numOfProcesses, sizeof(Process));
 
     for(x = 0; x < numOfProcesses; x++) {
         arrProcess[x] = initProcess(x);
