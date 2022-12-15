@@ -21,7 +21,7 @@ int getNumOfProcesses(char *prompt) {
 
 /**
  * @brief Initialize the arrival time, CPU burst time, pid
- *        Ex. for pid => P1, P2, P3, ..., Pn
+ *        For pid => P1, P2, P3, ..., Pn
  * 
  * @param pid - process identifier
  * @return Process 
@@ -52,6 +52,7 @@ Runtime simulateScheduling(Process *arr, int count) {
 int getMinAvgWaitingTime(Process *arr) {
 
 }
+
 
 
 /**
