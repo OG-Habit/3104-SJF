@@ -91,7 +91,6 @@ Runtime simulateScheduling(Process *arr, int count) {
 
             // ready queue may be empty as proccesses have yet to arrive
             // ensures current process is not yet added to runtime
-            // ensures no duplicates of processes in runtime
             if(currProcess != NULL) {
                 enqueueRuntime(&rt, *currProcess->processPtr);
                 ready = clearBit(ready, currProcess->ndx);
@@ -100,7 +99,6 @@ Runtime simulateScheduling(Process *arr, int count) {
             // check if the shortest job in queue is smaller than current
             if(queue != NULL &&
                 queue->processPtr->_timeRem < currProcess->processPtr->_timeRem) {
-                // do preemption
                 // return current process to ready queue
                 enqueueReadyQueue(&queue, currProcess->processPtr, currProcess->ndx);
                 ready = setBit(ready, currProcess->ndx);
