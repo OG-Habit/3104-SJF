@@ -4,6 +4,7 @@ int main() {
     int x;
     int count = 4;
     Runtime rt;
+    RuntimeProcessLL trav;
 
     Process arr[] = {
         {"P1", 2, 2, 0, 0, 2, 2},
@@ -14,9 +15,14 @@ int main() {
 
     rt = simulateScheduling(arr, count);
 
-    for(x = 0; x < count; x++) {
-        printf("%s - %d, %d, %d, %d", arr[x].pid, arr[x].timeArrival, arr[x].timeBurst, arr[x].timeTurnaround, arr[x].timeWaiting);
-        printf("\n");
+    // for(x = 0; x < count; x++) {
+    //     printf("%s - %d, %d, %d, %d", arr[x].pid, arr[x].timeArrival, arr[x].timeBurst, arr[x].timeTurnaround, arr[x].timeWaiting);
+    //     printf("\n");
+    // }
+
+    printf("\tduration \n");
+    for(trav = rt.front; trav != NULL; trav = trav->link) {
+        printf("%s \t%d \n", trav->pid, trav->duration);
     }
     
     return 0;
