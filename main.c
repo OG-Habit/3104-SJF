@@ -17,9 +17,9 @@ int main() {
 
     rt = simulateScheduling(arrProcess, numOfProcesses);
 
-    minAvgWaitingTime = getMinAvgWaitingTime(arrProcess);
+    minAvgWaitingTime = getMinAvgWaitingTime(arrProcess, numOfProcesses);
 
-    printPropsOfAllProcesses(arrProcess);
+    printPropsOfAllProcesses(arrProcess, numOfProcesses);
 
     printGanttChart(rt);
 
