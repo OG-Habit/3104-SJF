@@ -37,10 +37,13 @@ int getNumOfProcesses(char *prompt) {
 }
 
 /**
- * @brief Initialize the arrival time, remaining time, CPU burst time, pid
+ * @brief Initialize the arrival time, decreasing arrival time, remaining time, CPU 
+ *        burst time, pid
  *        For pid => P1, P2, P3, ..., Pn
  *        Burst time == remaining time
  *        Arrival time == decreasing arrival time
+ *        NOTE: The input values for time are MILLISECONDS
+ *        NOTE: The initialized values for time are SECONDS
  * 
  * @param pid - process identifier
  * @return Process 
@@ -64,20 +67,22 @@ Runtime simulateScheduling(Process *arr, int count) {
     Runtime rt = {0};
     ProcessLL queue, currProcess, trav;
     Bitmap unfinished, ready;
-    int x;
+    int x, toInt;
+    float ms = 0.001;
 
     unfinished = initBitmap(count);
     ready = 0;
     queue = currProcess = NULL;
 
-    // each iteration is 1 second
+    // each iteration is 1 millisecond
     while(unfinished != 0) {
         // fill up ready queue
         for(x = 0; x < count; x++) {
+            toInt = arr[x]._timeArrivalDec * 1000;
             if(!isCurrentProcess(rt, arr[x].pid) &&
                 !isReady(ready, x) && 
                 isUnfinished(unfinished, x) &&
-                arr[x]._timeArrivalDec == 0) {
+                toInt == 0) {
                 ready = setBit(ready, x);
                 enqueueReadyQueue(&queue, &arr[x], x);
             }
@@ -112,10 +117,16 @@ Runtime simulateScheduling(Process *arr, int count) {
 
         // working current process
         if(currProcess != NULL) {
-            currProcess->processPtr->_timeRem--;
-            rt.rear->duration++;
+            currProcess->processPtr->_timeRem = currProcess->processPtr->_timeRem - ms;
+            // printf("%.3f \t", currProcess->processPtr->_timeRem - ms);
+            // printf("%s => %.3f \t", currProcess->processPtr->pid, currProcess->processPtr->_timeRem);
+            rt.rear->duration = rt.rear->duration + ms;
             // set flag to 0 for process when finishes running
-            if(currProcess->processPtr->_timeRem == 0) {
+            toInt = currProcess->processPtr->_timeRem * 1000;
+            if(strcmp(currProcess->processPtr->pid, "P1") == 0) {
+                printf("%s => %.3f %d \t", currProcess->processPtr->pid, rt.rear->duration, toInt);
+            }
+            if(toInt == 0) {
                 unfinished = clearBit(unfinished, currProcess->ndx);
                 currProcess = NULL;
             }
@@ -123,13 +134,14 @@ Runtime simulateScheduling(Process *arr, int count) {
 
         // increase waiting time for processes in ready queue
         for(trav = queue; trav != NULL; trav = trav->link) {
-            trav->processPtr->timeWaiting++;
+            trav->processPtr->timeWaiting = trav->processPtr->timeWaiting + ms;
         }
 
         // decrease arrival time
         for(x = 0; x < count; x++) {
-            if(arr[x]._timeArrivalDec > 0) {
-                arr[x]._timeArrivalDec--;
+            toInt = arr[x]._timeArrivalDec * 1000;
+            if(toInt > 0) {
+                arr[x]._timeArrivalDec = arr[x]._timeArrivalDec - ms;
             }
         }
     }
@@ -142,6 +154,12 @@ Runtime simulateScheduling(Process *arr, int count) {
     return rt;
 }
 
+/**
+ * @brief Creates a bitmap of 1s
+ * 
+ * @param count - determines how many 1s
+ * @return Bitmap 
+ */
 Bitmap initBitmap(int count) {
     int x, one = 1;
     Bitmap bitmap = 0;
@@ -152,16 +170,37 @@ Bitmap initBitmap(int count) {
     return bitmap;
 }
 
+/**
+ * @brief Checks if process is in ready queue
+ * 
+ * @param ready - bitmap of ready processes
+ * @param ndx - index of process in the array
+ * @return int - 1 for ready, 0 for not ready
+ */
 int isReady(Bitmap ready, int ndx) {
     int x = 1 << ndx;
     return (ready | x) == ready ? 1 : 0; 
 }
 
+/**
+ * @brief Checks if process is unfinished
+ * 
+ * @param unfinished - bitmap of unfinished processes
+ * @param ndx - index of process in the array
+ * @return int - 1 for unfinished, 0 for finished
+ */
 int isUnfinished(Bitmap unfinished, int ndx) {
     int x = 1 << ndx;
     return (unfinished | x) == unfinished ? 1 : 0; 
 }
 
+/**
+ * @brief Checks if the selected process is currently running 
+ * 
+ * @param rt - runtime where we record running processes
+ * @param pid - id / name of the selected process
+ * @return int - 1 for selected process is currently running, 0 for otherwise
+ */
 int isCurrentProcess(Runtime rt, char *pid) {
     if(rt.rear != NULL) {
         return strcmp(pid, rt.rear->pid) == 0 ? 1 : 0;
@@ -170,14 +209,36 @@ int isCurrentProcess(Runtime rt, char *pid) {
     }
 }
 
+/**
+ * @brief Set a bit in the bitmap
+ * 
+ * @param bitmap - given bitmap 
+ * @param ndx - position within the bitmap to be set
+ * @return Bitmap - updated bitmap with the ndx bit set
+ */
 Bitmap setBit(Bitmap bitmap, int ndx) {
     return bitmap | 1 << ndx;
 }
 
+/**
+ * @brief Clear a bit in the bitmap
+ * 
+ * @param bitmap - given bitmap 
+ * @param ndx - position within the bitmap to be cleared
+ * @return Bitmap - updated bitmap with the ndx bit cleared
+ */
 Bitmap clearBit(Bitmap bitmap, int ndx) {
     return bitmap ^ 1 << ndx;
 }
 
+/**
+ * @brief Enqueue a process into the ready queue in an ascending order based from   
+ *        the burst time
+ * 
+ * @param head - ready queue
+ * @param process - process to be enqueued
+ * @param ndx - index of the process in the array of processes
+ */
 void enqueueReadyQueue(ProcessLL *head, Process *process, int ndx) {
     ProcessLL *trav, newLL;
 
@@ -193,6 +254,12 @@ void enqueueReadyQueue(ProcessLL *head, Process *process, int ndx) {
     *trav = newLL;
 }
 
+/**
+ * @brief Dequeue a process from the ready queue
+ * 
+ * @param queue - ready queue
+ * @return ProcessLL - dequeued process
+ */
 ProcessLL dequeueReadyQueue(ProcessLL *queue) {
     ProcessLL ll = *queue;
     if(*queue != NULL) {
@@ -201,6 +268,12 @@ ProcessLL dequeueReadyQueue(ProcessLL *queue) {
     return ll;
 }
 
+/**
+ * @brief Enqueue a running process into the runtime 
+ * 
+ * @param rt - runtime of the execution of sjf
+ * @param p - current running process
+ */
 void enqueueRuntime(Runtime *rt, Process p) {
     RuntimeProcessLL rp = (RuntimeProcessLL)calloc(1, sizeof(struct runtimeProcessLL));
     
