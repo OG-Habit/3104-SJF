@@ -43,7 +43,6 @@ int getNumOfProcesses(char *prompt) {
  *        Burst time == remaining time
  *        Arrival time == decreasing arrival time
  *        NOTE: The input values for time are MILLISECONDS
- *        NOTE: The initialized values for time are SECONDS
  * 
  * @param pid - process identifier
  * @return Process 
@@ -285,7 +284,9 @@ void enqueueRuntime(Runtime *rt, Process p) {
  * 
  * @param arr - array of processes
  * @param count - length of array
- * @return int - min avg waiting time
+ * @return int - min avg waiting time\
+ * 
+ * Note: Unit is SECONDS
  */
 int getMinAvgWaitingTime(Process *arr, int count) {
     arr = arr;
@@ -316,6 +317,7 @@ void printGreeting() {
  *        COL 5 => waiting time
  * 
  *        NOTE: DONT PRINT timeRem
+ *        NOTE: Time must be in SECONDS
  * 
  * @param arr - array of processes
  * @param count - length of array
@@ -329,6 +331,8 @@ void printPropsOfAllProcesses(Process *arr, int count) {
  * @brief print gantt chart of the scheduling
  * 
  * @param rt - runtime/simulation of the SJF scheduling of the given processes
+ * 
+ * Note: Unit is in SECONDS. The stored values are in MILLISECONDS
  */
 void printGanttChart(Runtime rt) {
     rt = rt;
