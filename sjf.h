@@ -67,22 +67,20 @@ Runtime simulateScheduling(Process *arr, int count) {
     Runtime rt = {0};
     ProcessLL queue, currProcess, trav;
     Bitmap unfinished, ready;
-    int x, toInt;
-    float ms = 0.001;
+    int x;
 
     unfinished = initBitmap(count);
     ready = 0;
     queue = currProcess = NULL;
 
-    // each iteration is 1 millisecond
+    // each iteration is 1 second
     while(unfinished != 0) {
         // fill up ready queue
         for(x = 0; x < count; x++) {
-            toInt = arr[x]._timeArrivalDec * 1000;
             if(!isCurrentProcess(rt, arr[x].pid) &&
                 !isReady(ready, x) && 
                 isUnfinished(unfinished, x) &&
-                toInt == 0) {
+                arr[x]._timeArrivalDec == 0) {
                 ready = setBit(ready, x);
                 enqueueReadyQueue(&queue, &arr[x], x);
             }
@@ -117,16 +115,10 @@ Runtime simulateScheduling(Process *arr, int count) {
 
         // working current process
         if(currProcess != NULL) {
-            currProcess->processPtr->_timeRem = currProcess->processPtr->_timeRem - ms;
-            // printf("%.3f \t", currProcess->processPtr->_timeRem - ms);
-            // printf("%s => %.3f \t", currProcess->processPtr->pid, currProcess->processPtr->_timeRem);
-            rt.rear->duration = rt.rear->duration + ms;
+            currProcess->processPtr->_timeRem--;
+            rt.rear->duration++;
             // set flag to 0 for process when finishes running
-            toInt = currProcess->processPtr->_timeRem * 1000;
-            if(strcmp(currProcess->processPtr->pid, "P1") == 0) {
-                printf("%s => %.3f %d \t", currProcess->processPtr->pid, rt.rear->duration, toInt);
-            }
-            if(toInt == 0) {
+            if(currProcess->processPtr->_timeRem == 0) {
                 unfinished = clearBit(unfinished, currProcess->ndx);
                 currProcess = NULL;
             }
@@ -134,14 +126,13 @@ Runtime simulateScheduling(Process *arr, int count) {
 
         // increase waiting time for processes in ready queue
         for(trav = queue; trav != NULL; trav = trav->link) {
-            trav->processPtr->timeWaiting = trav->processPtr->timeWaiting + ms;
+            trav->processPtr->timeWaiting++;
         }
 
         // decrease arrival time
         for(x = 0; x < count; x++) {
-            toInt = arr[x]._timeArrivalDec * 1000;
-            if(toInt > 0) {
-                arr[x]._timeArrivalDec = arr[x]._timeArrivalDec - ms;
+            if(arr[x]._timeArrivalDec > 0) {
+                arr[x]._timeArrivalDec--;
             }
         }
     }
@@ -232,7 +223,8 @@ Bitmap clearBit(Bitmap bitmap, int ndx) {
 }
 
 /**
- * @brief Enqueue a process into the ready queue in an ascending order based from   
+ * @brief Enqueue a process into the ready queue in an ascending order  
+ *        based from   
  *        the burst time
  * 
  * @param head - ready queue

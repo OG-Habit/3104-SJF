@@ -28,7 +28,7 @@ int main() {
 
     printf("\n\tduration \n");
     for(trav = rt.front; trav != NULL; trav = trav->link) {
-        printf("%s\t %.3f \n", trav->pid, trav->duration);
+        printf("%s \t%d \n", trav->pid, trav->duration);
     }
     
     return 0;
