@@ -185,15 +185,12 @@ void enqueueReadyQueue(ProcessLL *head, Process *process, int ndx) {
     newLL->ndx = ndx;
     newLL->processPtr = process;
     for(trav = head; *trav != NULL; trav = &(*trav)->link) {
-        if(process->timeArrival > (*trav)->processPtr->timeArrival) {
+        if(process->_timeRem < (*trav)->processPtr->_timeRem) {
             break;
         }
     } 
-    if(*trav == NULL) {
-        *trav = newLL;
-    } else {
-        (*trav)->link = newLL;
-    }
+    newLL->link = *trav;
+    *trav = newLL;
 }
 
 ProcessLL dequeueReadyQueue(ProcessLL *queue) {
