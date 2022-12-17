@@ -32,8 +32,20 @@ void printGanttChart(Runtime rt);
  * @return int - total number of processes to be simulated
  */
 int getNumOfProcesses(char *prompt) {
-    prompt = prompt;
-    return 0;
+     int num, min = 1, max = 8;
+    do{
+        printf("%s",prompt);
+        scanf("%d",&num);
+
+        if(num > max){
+            printf("Maximum number of processes is %d",max);
+        }else if(num < 1){
+            printf("Minimum number of process is %d\n",min);
+        }
+    }while(num > max || num < 1);
+
+    return num;
+
 }
 
 /**
@@ -305,8 +317,13 @@ void enqueueRuntime(Runtime *rt, Process p) {
  * Note: Unit is SECONDS
  */
 int getMinAvgWaitingTime(Process *arr, int count) {
-    arr = arr;
-    return count;
+    int x;
+    double minAvg,avgSecs,total = 0.00 ; 
+    for(x=0;x<count;x++){
+        total += arr[x].timeTurnaround - arr[x].timeBurst;
+    }
+    minAvg = total/count;
+    return minAvg;
 }
 
 
@@ -316,8 +333,10 @@ int getMinAvgWaitingTime(Process *arr, int count) {
  * 
  */
 void printGreeting() {
-
+    printf("\n==================================  PREEMPTIVE SJF CPU SCHEDULING PROGRAM ==================================");
+    printf("\n============================   TEAM 1 - DAYATA, CELDRAN, LABANA, WOOGUE, VALEROS   =========================\n");
 }
+
 
 /**
  * @brief print a table of the processes and their struct members

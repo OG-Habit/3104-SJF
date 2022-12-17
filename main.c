@@ -21,7 +21,7 @@ int main() {
 
     printPropsOfAllProcesses(arrProcess, numOfProcesses);
 
-    printGanttChart(rt);
+    // printGanttChart(rt);
 
     printf("The minimum average waiting item of preemptive SJF CPU Scheduling of %d processes is %d.\n", numOfProcesses, minAvgWaitingTime);
     
