@@ -17,8 +17,7 @@ void enqueueReadyQueue(ProcessLL *head, Process *process, int ndx);
 ProcessLL dequeueReadyQueue(ProcessLL *queue);
 void enqueueRuntime(Runtime *rt, Process p);
 
-
-int getMinAvgWaitingTime(Process *arr, int);
+double getMinAvgWaitingTime(Process *arr, int);
 
 void printGreeting();
 void printPropsOfAllProcesses(Process *arr, int);
@@ -316,25 +315,24 @@ void enqueueRuntime(Runtime *rt, Process p) {
  * 
  * Note: Unit is SECONDS
  */
-int getMinAvgWaitingTime(Process *arr, int count) {
+double getMinAvgWaitingTime(Process *arr, int count) {
     int x;
-    double minAvg,avgSecs,total = 0.00 ; 
+    double minAvg,result,res,total = 0.00;
     for(x=0;x<count;x++){
-        total += arr[x].timeTurnaround - arr[x].timeBurst;
+        result = (double)arr[x].timeTurnaround - (double)arr[x].timeBurst;
+        total += result;
     }
     minAvg = total/count;
-    return minAvg;
+    res = minAvg/1000;
+    return res;
 }
-
-
 
 /**
  * @brief print the greeting/introduction
  * 
  */
 void printGreeting() {
-    printf("\n==================================  PREEMPTIVE SJF CPU SCHEDULING PROGRAM ==================================");
-    printf("\n============================   TEAM 1 - DAYATA, CELDRAN, LABANA, WOOGUE, VALEROS   =========================\n");
+    printf("\n============================  PREEMPTIVE SJF CPU SCHEDULING PROGRAM  ============================\n");
 }
 
 
@@ -378,5 +376,44 @@ void printPropsOfAllProcesses(Process *arr, int count) {
  * Note: Unit is in SECONDS. The stored values are in MILLISECONDS
  */
 void printGanttChart(Runtime rt) {
-    rt = rt;
+    RuntimeProcessLL trav;
+    int x;
+     printf("\n\nGANTT CHART\n\n");
+
+    for(trav=rt.front; trav != NULL; trav =  trav->link){
+        char *str = (char *) calloc(trav->duration,sizeof(char));
+        memset(str,'=', (trav->duration*8)/1000);
+        printf("|%s",str);
+    }
+        printf("|\n");
+
+    for(trav=rt.front; trav != NULL; trav =  trav->link){
+        char *str = (char *) calloc(trav->duration,sizeof(char));
+        memset(str,' ', (trav->duration*8)/1000);
+        str[strlen(str)/2] = trav->pid[0];
+        str[(strlen(str)/2)+1] = trav->pid[1];
+        printf("|%s",str);
+    }
+        printf("|\n");
+
+    for(trav=rt.front; trav != NULL; trav =  trav->link){
+        char *str = (char *) calloc(trav->duration,sizeof(char));
+        memset(str,'=', (trav->duration*8)/1000);
+        printf("|%s",str);
+    }
+        printf("|\n");
+
+    for(trav=rt.front,x=0; trav != NULL; trav =  trav->link,x++){
+
+        char *str = (char *) calloc(trav->duration,sizeof(char));
+        memset(str,' ', (trav->duration*8)/1000);
+        if(x == 0){
+            printf("0%s",str);
+            printf("%-.2lf",(double)(trav->duration)/1000);
+        }else{
+            printf("%s%-.2lf",str,(double)(trav->duration)/1000);
+        }
+    }
+
+    printf("\n");
 }

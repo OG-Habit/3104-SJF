@@ -1,13 +1,14 @@
 #include "sjf.h"
 
 int main() {
-    int x, numOfProcesses, minAvgWaitingTime;
+    int x, numOfProcesses;
+    double minAvgWaitingTime;
     Process *arrProcess;
     Runtime rt;
 
     printGreeting();
 
-    numOfProcesses = getNumOfProcesses("Enter the number of processes: ");
+    numOfProcesses = getNumOfProcesses("\nEnter the number of processes: ");
 
     arrProcess = (Process*)calloc(numOfProcesses, sizeof(Process));
 
@@ -21,9 +22,9 @@ int main() {
 
     printPropsOfAllProcesses(arrProcess, numOfProcesses);
 
-    // printGanttChart(rt);
+    printGanttChart(rt);
 
-    printf("The minimum average waiting item of preemptive SJF CPU Scheduling of %d processes is %d.\n", numOfProcesses, minAvgWaitingTime);
+    printf("\nThe minimum average waiting item of preemptive SJF CPU Scheduling of %d processes is %.3lf second/s\n", numOfProcesses, minAvgWaitingTime);
     
     return 0;
 }
