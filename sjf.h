@@ -403,17 +403,17 @@ void printGanttChart(Runtime rt) {
     }
         printf("|\n");
 
+    double dur = 0.00; 
     for(trav=rt.front,x=0; trav != NULL; trav =  trav->link,x++){
-
+        dur += (double)trav->duration/1000;
         char *str = (char *) calloc(trav->duration,sizeof(char));
         memset(str,' ', (trav->duration*8)/1000);
         if(x == 0){
             printf("0%s",str);
-            printf("%-.2lf",(double)(trav->duration)/1000);
+            printf("%.2lf",dur);
         }else{
-            printf("%s%-.2lf",str,(double)(trav->duration)/1000);
+            printf("%s%.2lf",str,dur);
         }
     }
-
     printf("\n");
 }
