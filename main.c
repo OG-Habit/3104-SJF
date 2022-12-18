@@ -4,10 +4,10 @@
  *  Celdran, Erik
  *  Dayata, Wayne
  *  Labana, Hannah
- *  Valeros, Mark
+ *  Valeros, Marc
  *  Woogue, Ivan 
- * @brief Course Code - CS3104. This preemptive Shortest Job First is a final project requirement for CS 3104 - Operating Systems. This program accepts upto 8 processes only. The burst time and arrival time of each process is provided by user. The average waiting time and average turnaroud time given the list of processes will be printed out. A gantt chart showing the sequence of processes being executed will be printed as well. No decimals will be permitted for any of the inputs nor outputs.
- * @version 0.1
+ * @brief Course Code - CS3104. This preemptive Shortest Job First is a final project requirement for CS 3104 - Operating Systems. This program accepts up to 8 processes only. The burst time and arrival time of each process is provided by user. The average waiting time and average turnaround time given the list of processes will be printed out. A Gantt Chart showing the sequence of processes being executed will be printed as well. No decimals will be permitted for any of the inputs nor outputs.
+ * @version 1.0
  * @date 2022-12-18
  * 
  * @copyright Copyright (c) 2022
