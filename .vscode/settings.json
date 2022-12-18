@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.module": "php",
+    "*.php": "php",
+    "datastruct.h": "c"
+  }
+}
