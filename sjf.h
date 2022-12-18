@@ -7,6 +7,7 @@
 
 int getNumOfProcesses(char *prompt);
 Process initProcess(int pid);
+
 Runtime simulateScheduling(Process *arr, int count);
 Bitmap initBitmap(int count);
 int isReady(Bitmap ready, int ndx);
@@ -25,9 +26,9 @@ void printGreeting();
 void printPropsOfAllProcesses(Process *arr, int);
 void printGanttChart(Runtime rt);
 
-void ftoa(float n, char* res, int ap);
-int intToStr(int x, char str[], int d);
-void reverse(char* str, int len);
+// void ftoa(float n, char* res, int ap);
+// int intToStr(int x, char str[], int d);
+// void reverse(char* str, int len);
 
 
 
@@ -324,13 +325,12 @@ void enqueueRuntime(Runtime *rt, Process p) {
  */
 double getMinAvgWaitingTime(Process *arr, int count) {
     int x;
-    double minAvg,result,res,total = 0.00;
+    double result,res,total = 0.00;
     for(x=0;x<count;x++){
         result = (double)arr[x].timeTurnaround - (double)arr[x].timeBurst;
         total += result;
     }
-    minAvg = total/count;
-    res = minAvg/1000;
+    res = total/count;
     return res;
 }
 
@@ -346,12 +346,11 @@ double getMinAvgWaitingTime(Process *arr, int count) {
  */
 double getMinAvgTurnaroundTime(Process *arr, int count) {
     int x;
-    double minAvg,res,total = 0.00;
+    double res,total = 0.00;
     for(x=0;x<count;x++){
         total += (double)arr[x].timeTurnaround;
     }
-    minAvg = total/count;
-    res = minAvg/1000;
+    res = total/count;
     return res;
 }
 
@@ -392,7 +391,7 @@ void printPropsOfAllProcesses(Process *arr, int count) {
     printf("================================================================================================\n");
 
     for(x = 0; x < count; x++) {
-        printf("%s\t %.3lf seconds\t\t %.3lf seconds\t\t %.3lf seconds\t\t %.3lf seconds\n",arr[x].pid,(double)arr[x].timeArrival/1000,(double)arr[x].timeBurst/1000,(double)arr[x].timeTurnaround/1000,(double)arr[x].timeWaiting/1000);
+        printf("%s\t %d ms\t\t\t %d ms\t\t\t %d ms\t\t\t %d ms\n",arr[x].pid,arr[x].timeArrival,arr[x].timeBurst,arr[x].timeTurnaround,arr[x].timeWaiting);
     }
 }
 
@@ -401,121 +400,168 @@ void printPropsOfAllProcesses(Process *arr, int count) {
  * 
  * @param rt - runtime/simulation of the SJF scheduling of the given processes
  * 
- * Note: Unit is in SECONDS. The stored values are in MILLISECONDS
+ * This prints a gantt chart with int values
  */
 void printGanttChart(Runtime rt) {
     RuntimeProcessLL trav;
-    int x;
+    int x, SPACE = 7;
      printf("\n\nGANTT CHART\n\n");
 
     for(trav=rt.front; trav != NULL; trav =  trav->link){
-        char *str = (char *) calloc(trav->duration,sizeof(char));
-        memset(str,'=', (trav->duration*8)/1000);
+        char *str = (char *) calloc(trav->duration*SPACE+1,sizeof(char));
+        memset(str,'=', trav->duration*SPACE);
         printf("|%s",str);
     }
         printf("|\n");
 
     for(trav=rt.front; trav != NULL; trav =  trav->link){
-        char *str = (char *) calloc(trav->duration,sizeof(char));
-        memset(str,' ', (trav->duration*8)/1000);
-        str[strlen(str)/2] = trav->pid[0];
-        str[(strlen(str)/2)+1] = trav->pid[1];
+        char *str = (char *) calloc(trav->duration*SPACE+1,sizeof(char));
+        memset(str,' ', (trav->duration*SPACE));
+        str[strlen(str)/2-1] = trav->pid[0];
+        str[(strlen(str)/2)] = trav->pid[1];
         printf("|%s",str);
     }
         printf("|\n");
 
     for(trav=rt.front; trav != NULL; trav =  trav->link){
-        char *str = (char *) calloc(trav->duration,sizeof(char));
-        memset(str,'=', (trav->duration*8)/1000);
+        char *str = (char *) calloc(trav->duration*SPACE+1,sizeof(char));
+        memset(str,'=', (trav->duration*SPACE));
         printf("|%s",str);
     }
         printf("|\n0");
 
-    double dur = 0.00; 
-    for(trav=rt.front,x=0; trav != NULL; trav =  trav->link,x++){
-        char *res,*str = (char *) calloc((trav->duration*8)/1000,sizeof(char));
-        dur += (double)trav->duration/1000;
-        memset(str,' ', (trav->duration*8)/1000);
-        ftoa(dur,res,1);
+    for(trav=rt.front,x=0; trav != NULL; trav =  trav->link){
+        char res[15],*str = (char *) calloc((trav->duration*SPACE+10),sizeof(char));
+        memset(str,' ', (trav->duration*SPACE));
+        itoa(trav->duration+x, res, 10);
+        x += trav->duration;
         int res_len = strlen(res);
-        memcpy(str+(((trav->duration*8)/1000)-(res_len-1)),res,res_len);
+        memcpy(str+((trav->duration*SPACE)-(res_len-1)),res,res_len);
         printf("%s",str);
     }
     printf("\n");
 }
 
 /**
- * @brief converts float number to string
+ * @brief print gantt chart of the scheduling
  * 
- * @param n - input number
- * @param res - buffer array where output string will be stored
- * @param ap - number of digits after float/double point
+ * @param rt - runtime/simulation of the SJF scheduling of the given processes
  * 
+ * This prints a gantt chart with floating values
  */
-void ftoa(float n, char* res, int ap){
-    // Extract integer part
-    int ipart = (int)n;
- 
-    // Extract floating part
-    float fpart = n - (float)ipart;
- 
-    // convert integer part to string
-    int i = intToStr(ipart, res, 0);
- 
-    // check for display option after point
-    if (ap != 0) {
-        res[i] = '.'; // add dot
- 
-        // Get the value of fraction part upto given no.
-        // of points after dot. The third parameter
-        // is needed to handle cases like 233.007
-        fpart = fpart * pow(10, ap);
- 
-        intToStr((int)fpart, res + i + 1, ap);
-    }
-}
+// void printGanttChartv2(Runtime rt) {
+//     RuntimeProcessLL trav;
+//     int x;
+//      printf("\n\nGANTT CHART\n\n");
 
-/**
- * @brief converts int to string
- * 
- * @param x - input number
- * @param str - buffer array where output string will be stored
- * @param d - number of digits required in the output
- * 
- */
-int intToStr(int x, char str[], int d)
-{
-    int i = 0;
-    while (x) {
-        str[i++] = (x % 10) + '0';
-        x = x / 10;
-    }
- 
-    // If number of digits required is more, then
-    // add 0s at the beginning
-    while (i < d)
-        str[i++] = '0';
- 
-    reverse(str, i);
-    str[i] = '\0';
-    return i;
-}
+//     for(trav=rt.front; trav != NULL; trav =  trav->link){
+//         char *str = (char *) calloc(trav->duration,sizeof(char));
+//         memset(str,'=', (trav->duration*8)/1000);
+//         printf("|%s",str);
+//     }
+//         printf("|\n");
 
-/**
- * @brief  reverse the string
- * 
- * @param str -the string to be reversed
- * @param d - len of the string
- * 
- */
-void reverse(char* str, int len)
-{
-    int i = 0, j = len - 1, temp;
-    while (i < j) {
-        temp = str[i];
-        str[i] = str[j];
-        str[j] = temp;
-        i++;
-        j--;
-    }
-}
+//     for(trav=rt.front; trav != NULL; trav =  trav->link){
+//         char *str = (char *) calloc(trav->duration,sizeof(char));
+//         memset(str,' ', (trav->duration*8)/1000);
+//         str[strlen(str)/2] = trav->pid[0];
+//         str[(strlen(str)/2)+1] = trav->pid[1];
+//         printf("|%s",str);
+//     }
+//         printf("|\n");
+
+//     for(trav=rt.front; trav != NULL; trav =  trav->link){
+//         char *str = (char *) calloc(trav->duration,sizeof(char));
+//         memset(str,'=', (trav->duration*8)/1000);
+//         printf("|%s",str);
+//     }
+//         printf("|\n0");
+
+//     double dur = 0.00; 
+//     for(trav=rt.front,x=0; trav != NULL; trav =  trav->link,x++){
+//         char *res,*str = (char *) calloc((trav->duration*8)/1000,sizeof(char));
+//         dur += (double)trav->duration/1000;
+//         memset(str,' ', (trav->duration*8)/1000);
+//         ftoa(dur,res,1);
+//         int res_len = strlen(res);
+//         memcpy(str+(((trav->duration*8)/1000)-(res_len-1)),res,res_len);
+//         printf("%s",str);
+//     }
+//     printf("\n");
+// }
+
+// /**
+//  * @brief converts float number to string
+//  * 
+//  * @param n - input number
+//  * @param res - buffer array where output string will be stored
+//  * @param ap - number of digits after float/double point
+//  * 
+//  */
+// void ftoa(float n, char* res, int ap){
+//     // Extract integer part
+//     int ipart = (int)n;
+ 
+//     // Extract floating part
+//     float fpart = n - (float)ipart;
+ 
+//     // convert integer part to string
+//     int i = intToStr(ipart, res, 0);
+ 
+//     // check for display option after point
+//     if (ap != 0) {
+//         res[i] = '.'; // add dot
+ 
+//         // Get the value of fraction part upto given no.
+//         // of points after dot. The third parameter
+//         // is needed to handle cases like 233.007
+//         fpart = fpart * pow(10, ap);
+ 
+//         intToStr((int)fpart, res + i + 1, ap);
+//     }
+// }
+
+// /**
+//  * @brief converts int to string
+//  * 
+//  * @param x - input number
+//  * @param str - buffer array where output string will be stored
+//  * @param d - number of digits required in the output
+//  * 
+//  */
+// int intToStr(int x, char str[], int d)
+// {
+//     int i = 0;
+//     while (x) {
+//         str[i++] = (x % 10) + '0';
+//         x = x / 10;
+//     }
+ 
+//     // If number of digits required is more, then
+//     // add 0s at the beginning
+//     while (i < d)
+//         str[i++] = '0';
+ 
+//     reverse(str, i);
+//     str[i] = '\0';
+//     return i;
+// }
+
+// /**
+//  * @brief  reverse the string
+//  * 
+//  * @param str -the string to be reversed
+//  * @param d - len of the string
+//  * 
+//  */
+// void reverse(char* str, int len)
+// {
+//     int i = 0, j = len - 1, temp;
+//     while (i < j) {
+//         temp = str[i];
+//         str[i] = str[j];
+//         str[j] = temp;
+//         i++;
+//         j--;
+//     }
+// }

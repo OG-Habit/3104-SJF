@@ -26,4 +26,3 @@ typedef struct runtime {
     RuntimeProcessLL front;
     RuntimeProcessLL rear;
 } Runtime;
-
