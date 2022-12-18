@@ -48,8 +48,26 @@ int getNumOfProcesses(char *prompt) {
  * @return Process 
  */
 Process initProcess(int pid) {
+    char buffer[4];
     Process p = {0};
-    pid = pid;
+    pid++;
+    sprintf(buffer, "P%d", pid);
+    p.pid = malloc(sizeof(char) * strlen(buffer)+1);
+    strcpy(p.pid,buffer);
+    p.timeArrival = 0;
+    p.timeBurst = 0;
+    p.timeTurnaround = 0;
+    p.timeWaiting = 0;
+
+    printf("Enter Arrival Time(in milliseconds) of P%d: ",pid);
+    scanf("%d",&p.timeArrival);
+    printf("Enter Burst Time(in milliseconds) of P%d: ",pid);
+    scanf("%d",&p.timeBurst);
+    printf("\n");
+    p._timeArrivalDec = p.timeArrival;
+    p._timeRem = p.timeBurst; 
+
+
     return p;
 }
 
@@ -321,8 +339,16 @@ void printGreeting() {
  * @param count - length of array
  */
 void printPropsOfAllProcesses(Process *arr, int count) {
+    int x;
     arr = arr;
     count = count;
+    printf("================================================================================================\n");
+    printf("PID\t Arrival Time\t\t Burst Time\t\t Turnaround Time\t Waiting Time\n"); 
+    printf("================================================================================================\n");
+
+    for(x = 0; x < count; x++) {
+        printf("%s\t %.3lf seconds\t\t %.3lf seconds\t\t %.3lf seconds\t\t %.3lf seconds\n",arr[x].pid,(double)arr[x].timeArrival/1000,(double)arr[x].timeBurst/1000,(double)arr[x].timeTurnaround/1000,(double)arr[x].timeWaiting/1000);
+    }
 }
 
 /**
