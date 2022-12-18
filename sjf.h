@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "dataStruct.h"
 
@@ -17,12 +18,17 @@ void enqueueReadyQueue(ProcessLL *head, Process *process, int ndx);
 ProcessLL dequeueReadyQueue(ProcessLL *queue);
 void enqueueRuntime(Runtime *rt, Process p);
 
-
-int getMinAvgWaitingTime(Process *arr, int);
+double getMinAvgWaitingTime(Process *arr, int);
+double getMinAvgTurnaroundTime(Process *arr, int);
 
 void printGreeting();
 void printPropsOfAllProcesses(Process *arr, int);
 void printGanttChart(Runtime rt);
+
+void ftoa(float n, char* res, int ap);
+int intToStr(int x, char str[], int d);
+void reverse(char* str, int len);
+
 
 
 /**
@@ -32,8 +38,20 @@ void printGanttChart(Runtime rt);
  * @return int - total number of processes to be simulated
  */
 int getNumOfProcesses(char *prompt) {
-    prompt = prompt;
-    return 0;
+     int num, min = 1, max = 8;
+    do{
+        printf("%s",prompt);
+        scanf("%d",&num);
+
+        if(num > max){
+            printf("Maximum number of processes is %d",max);
+        }else if(num < 1){
+            printf("Minimum number of process is %d\n",min);
+        }
+    }while(num > max || num < 1);
+
+    return num;
+
 }
 
 /**
@@ -52,7 +70,7 @@ Process initProcess(int pid) {
     Process p = {0};
     pid++;
     sprintf(buffer, "P%d", pid);
-    p.pid = malloc(sizeof(char) * strlen(buffer)+1);
+    p.pid = (char*)malloc(sizeof(char) * strlen(buffer)+1);
     strcpy(p.pid,buffer);
     p.timeArrival = 0;
     p.timeBurst = 0;
@@ -300,24 +318,51 @@ void enqueueRuntime(Runtime *rt, Process p) {
  * 
  * @param arr - array of processes
  * @param count - length of array
- * @return int - min avg waiting time\
+ * @return double - min avg waiting time\
  * 
  * Note: Unit is SECONDS
  */
-int getMinAvgWaitingTime(Process *arr, int count) {
-    arr = arr;
-    return count;
+double getMinAvgWaitingTime(Process *arr, int count) {
+    int x;
+    double minAvg,result,res,total = 0.00;
+    for(x=0;x<count;x++){
+        result = (double)arr[x].timeTurnaround - (double)arr[x].timeBurst;
+        total += result;
+    }
+    minAvg = total/count;
+    res = minAvg/1000;
+    return res;
 }
 
 
+/**
+ * @brief Get the min avg waiting time for the processes
+ * 
+ * @param arr - array of processes
+ * @param count - length of array
+ * @return double - avg turnaround time
+ * 
+ * Note: Unit is SECONDS
+ */
+double getMinAvgTurnaroundTime(Process *arr, int count) {
+    int x;
+    double minAvg,res,total = 0.00;
+    for(x=0;x<count;x++){
+        total += (double)arr[x].timeTurnaround;
+    }
+    minAvg = total/count;
+    res = minAvg/1000;
+    return res;
+}
 
 /**
  * @brief print the greeting/introduction
  * 
  */
 void printGreeting() {
-
+    printf("\n============================  PREEMPTIVE SJF CPU SCHEDULING PROGRAM  ============================\n");
 }
+
 
 /**
  * @brief print a table of the processes and their struct members
@@ -359,5 +404,118 @@ void printPropsOfAllProcesses(Process *arr, int count) {
  * Note: Unit is in SECONDS. The stored values are in MILLISECONDS
  */
 void printGanttChart(Runtime rt) {
-    rt = rt;
+    RuntimeProcessLL trav;
+    int x;
+     printf("\n\nGANTT CHART\n\n");
+
+    for(trav=rt.front; trav != NULL; trav =  trav->link){
+        char *str = (char *) calloc(trav->duration,sizeof(char));
+        memset(str,'=', (trav->duration*8)/1000);
+        printf("|%s",str);
+    }
+        printf("|\n");
+
+    for(trav=rt.front; trav != NULL; trav =  trav->link){
+        char *str = (char *) calloc(trav->duration,sizeof(char));
+        memset(str,' ', (trav->duration*8)/1000);
+        str[strlen(str)/2] = trav->pid[0];
+        str[(strlen(str)/2)+1] = trav->pid[1];
+        printf("|%s",str);
+    }
+        printf("|\n");
+
+    for(trav=rt.front; trav != NULL; trav =  trav->link){
+        char *str = (char *) calloc(trav->duration,sizeof(char));
+        memset(str,'=', (trav->duration*8)/1000);
+        printf("|%s",str);
+    }
+        printf("|\n0");
+
+    double dur = 0.00; 
+    for(trav=rt.front,x=0; trav != NULL; trav =  trav->link,x++){
+        char *res,*str = (char *) calloc((trav->duration*8)/1000,sizeof(char));
+        dur += (double)trav->duration/1000;
+        memset(str,' ', (trav->duration*8)/1000);
+        ftoa(dur,res,1);
+        int res_len = strlen(res);
+        memcpy(str+(((trav->duration*8)/1000)-(res_len-1)),res,res_len);
+        printf("%s",str);
+    }
+    printf("\n");
+}
+
+/**
+ * @brief converts float number to string
+ * 
+ * @param n - input number
+ * @param res - buffer array where output string will be stored
+ * @param ap - number of digits after float/double point
+ * 
+ */
+void ftoa(float n, char* res, int ap){
+    // Extract integer part
+    int ipart = (int)n;
+ 
+    // Extract floating part
+    float fpart = n - (float)ipart;
+ 
+    // convert integer part to string
+    int i = intToStr(ipart, res, 0);
+ 
+    // check for display option after point
+    if (ap != 0) {
+        res[i] = '.'; // add dot
+ 
+        // Get the value of fraction part upto given no.
+        // of points after dot. The third parameter
+        // is needed to handle cases like 233.007
+        fpart = fpart * pow(10, ap);
+ 
+        intToStr((int)fpart, res + i + 1, ap);
+    }
+}
+
+/**
+ * @brief converts int to string
+ * 
+ * @param x - input number
+ * @param str - buffer array where output string will be stored
+ * @param d - number of digits required in the output
+ * 
+ */
+int intToStr(int x, char str[], int d)
+{
+    int i = 0;
+    while (x) {
+        str[i++] = (x % 10) + '0';
+        x = x / 10;
+    }
+ 
+    // If number of digits required is more, then
+    // add 0s at the beginning
+    while (i < d)
+        str[i++] = '0';
+ 
+    reverse(str, i);
+    str[i] = '\0';
+    return i;
+}
+
+/**
+ * @brief  reverse the string
+ * 
+ * @param str -the string to be reversed
+ * @param d - len of the string
+ * 
+ */
+void reverse(char* str, int len)
+{
+    int i = 0, j = len - 1, temp;
+    while (i < j) {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++;
+        j--;
+    }
 }
