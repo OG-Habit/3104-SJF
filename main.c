@@ -2,7 +2,7 @@
 
 int main() {
     int x, numOfProcesses;
-    double minAvgWaitingTime;
+    double minAvgWaitingTime,minAvgTurnTime;
     Process *arrProcess;
     Runtime rt;
 
@@ -19,12 +19,14 @@ int main() {
     rt = simulateScheduling(arrProcess, numOfProcesses);
 
     minAvgWaitingTime = getMinAvgWaitingTime(arrProcess, numOfProcesses);
+    minAvgTurnTime = getMinAvgTurnaroundTime(arrProcess, numOfProcesses);
 
     printPropsOfAllProcesses(arrProcess, numOfProcesses);
 
     printGanttChart(rt);
 
-    printf("\nThe minimum average waiting item of preemptive SJF CPU Scheduling of %d processes is %.3lf second/s\n", numOfProcesses, minAvgWaitingTime);
+    printf("\nAVG WAITING TIME of %d processes is %.3lf second/s\n", numOfProcesses, minAvgWaitingTime);
+    printf("AVG TURNAROUND TIME of %d processes is %.3lf second/s\n", numOfProcesses, minAvgTurnTime);
     
     return 0;
 }

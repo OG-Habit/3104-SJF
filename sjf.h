@@ -19,6 +19,7 @@ ProcessLL dequeueReadyQueue(ProcessLL *queue);
 void enqueueRuntime(Runtime *rt, Process p);
 
 double getMinAvgWaitingTime(Process *arr, int);
+double getMinAvgTurnaroundTime(Process *arr, int);
 
 void printGreeting();
 void printPropsOfAllProcesses(Process *arr, int);
@@ -317,7 +318,7 @@ void enqueueRuntime(Runtime *rt, Process p) {
  * 
  * @param arr - array of processes
  * @param count - length of array
- * @return int - min avg waiting time\
+ * @return double - min avg waiting time\
  * 
  * Note: Unit is SECONDS
  */
@@ -327,6 +328,27 @@ double getMinAvgWaitingTime(Process *arr, int count) {
     for(x=0;x<count;x++){
         result = (double)arr[x].timeTurnaround - (double)arr[x].timeBurst;
         total += result;
+    }
+    minAvg = total/count;
+    res = minAvg/1000;
+    return res;
+}
+
+
+/**
+ * @brief Get the min avg waiting time for the processes
+ * 
+ * @param arr - array of processes
+ * @param count - length of array
+ * @return double - avg turnaround time
+ * 
+ * Note: Unit is SECONDS
+ */
+double getMinAvgTurnaroundTime(Process *arr, int count) {
+    int x;
+    double minAvg,res,total = 0.00;
+    for(x=0;x<count;x++){
+        total += (double)arr[x].timeTurnaround;
     }
     minAvg = total/count;
     res = minAvg/1000;
@@ -414,11 +436,8 @@ void printGanttChart(Runtime rt) {
         char *res,*str = (char *) calloc((trav->duration*8)/1000,sizeof(char));
         dur += (double)trav->duration/1000;
         memset(str,' ', (trav->duration*8)/1000);
-
         ftoa(dur,res,2);
         int res_len = strlen(res);
-        int str_len = strlen(res);
-        
         memcpy(str+(((trav->duration*8)/1000)-(res_len-1)),res,res_len);
         printf("%s",str);
     }
