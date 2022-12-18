@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "dataStruct.h"
 
@@ -22,6 +23,11 @@ double getMinAvgWaitingTime(Process *arr, int);
 void printGreeting();
 void printPropsOfAllProcesses(Process *arr, int);
 void printGanttChart(Runtime rt);
+
+void ftoa(float n, char* res, int ap);
+int intToStr(int x, char str[], int d);
+void reverse(char* str, int len);
+
 
 
 /**
@@ -63,7 +69,7 @@ Process initProcess(int pid) {
     Process p = {0};
     pid++;
     sprintf(buffer, "P%d", pid);
-    p.pid = malloc(sizeof(char) * strlen(buffer)+1);
+    p.pid = (char*)malloc(sizeof(char) * strlen(buffer)+1);
     strcpy(p.pid,buffer);
     p.timeArrival = 0;
     p.timeBurst = 0;
@@ -401,19 +407,96 @@ void printGanttChart(Runtime rt) {
         memset(str,'=', (trav->duration*8)/1000);
         printf("|%s",str);
     }
-        printf("|\n");
+        printf("|\n0");
 
     double dur = 0.00; 
     for(trav=rt.front,x=0; trav != NULL; trav =  trav->link,x++){
+        char *res,*str = (char *) calloc((trav->duration*8)/1000,sizeof(char));
         dur += (double)trav->duration/1000;
-        char *str = (char *) calloc(trav->duration,sizeof(char));
         memset(str,' ', (trav->duration*8)/1000);
-        if(x == 0){
-            printf("0%s",str);
-            printf("%.2lf",dur);
-        }else{
-            printf("%s%.2lf",str,dur);
-        }
+
+        ftoa(dur,res,2);
+        int res_len = strlen(res);
+        int str_len = strlen(res);
+        
+        memcpy(str+(((trav->duration*8)/1000)-(res_len-1)),res,res_len);
+        printf("%s",str);
     }
     printf("\n");
+}
+
+/**
+ * @brief converts float number to string
+ * 
+ * @param n - input number
+ * @param res - buffer array where output string will be stored
+ * @param ap - number of digits after float/double point
+ * 
+ */
+void ftoa(float n, char* res, int ap){
+    // Extract integer part
+    int ipart = (int)n;
+ 
+    // Extract floating part
+    float fpart = n - (float)ipart;
+ 
+    // convert integer part to string
+    int i = intToStr(ipart, res, 0);
+ 
+    // check for display option after point
+    if (ap != 0) {
+        res[i] = '.'; // add dot
+ 
+        // Get the value of fraction part upto given no.
+        // of points after dot. The third parameter
+        // is needed to handle cases like 233.007
+        fpart = fpart * pow(10, ap);
+ 
+        intToStr((int)fpart, res + i + 1, ap);
+    }
+}
+
+/**
+ * @brief converts int to string
+ * 
+ * @param x - input number
+ * @param str - buffer array where output string will be stored
+ * @param d - number of digits required in the output
+ * 
+ */
+int intToStr(int x, char str[], int d)
+{
+    int i = 0;
+    while (x) {
+        str[i++] = (x % 10) + '0';
+        x = x / 10;
+    }
+ 
+    // If number of digits required is more, then
+    // add 0s at the beginning
+    while (i < d)
+        str[i++] = '0';
+ 
+    reverse(str, i);
+    str[i] = '\0';
+    return i;
+}
+
+/**
+ * @brief  reverse the string
+ * 
+ * @param str -the string to be reversed
+ * @param d - len of the string
+ * 
+ */
+void reverse(char* str, int len)
+{
+    int i = 0, j = len - 1, temp;
+    while (i < j) {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++;
+        j--;
+    }
 }
