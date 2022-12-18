@@ -436,7 +436,7 @@ void printGanttChart(Runtime rt) {
         char *res,*str = (char *) calloc((trav->duration*8)/1000,sizeof(char));
         dur += (double)trav->duration/1000;
         memset(str,' ', (trav->duration*8)/1000);
-        ftoa(dur,res,2);
+        ftoa(dur,res,1);
         int res_len = strlen(res);
         memcpy(str+(((trav->duration*8)/1000)-(res_len-1)),res,res_len);
         printf("%s",str);
